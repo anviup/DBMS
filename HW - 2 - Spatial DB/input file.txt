@@ -1,0 +1,12 @@
+create table usc_polygon
+(
+location_name varchar(15),
+geometry sde.st_geometry
+);
+
+insert into geospatial.polygon_table values ("home",sde.st_geometry('point(-118.283,34.029)') ), 
+("office",sde.st_geometry('point(-118.289,34.025)')), ("Jeff/Mclintok",sde.st_geometry('point(-118.287,34.025)')), 
+("Mudd Hall MHP",sde.st_geometry('point(-118.287,34.0186)')),("SAL comp center",sde.st_geometry('point(-118.29,34.021)')), 
+("Jeff/Vermont",sde.st_geometry('point(-118.29,34.022)')), ("USC Bookstore",sde.st_geometry('point(-118.2858,34.0205)')), 
+("VKC",sde.st_geometry('point(-118.2838,34.0208)')), 
+("Galent Center",sde.st_geometry('point(-118.280,34.0214)')), ("Starbucks",sde.st_geometry('point(-118.282,34.0213)')); 

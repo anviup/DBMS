@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<kml xmlns="http://earth.google.com/kml/2.0">
+
+<Document>
+
+ <Style id="z1">
+
+  <IconStyle><Icon><href>http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png</href></Icon></IconStyle>
+
+ </Style>
+
+<Placemark>
+ <name>PolygonX</name>
+
+<Style id="transBluePoly">
+      <LineStyle>
+        <width>1.5</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>7daa0000</color>
+      </PolyStyle>
+</Style>
+   <Polygon>
+    <outerBoundaryIs>
+     <LinearRing>
+      <coordinates> -118.283,34.029 -118.289,34.025 -118.287,34.025 -118.2858,34.0205 -118.2838,34.0208 -118.283,34.029 </coordinates>
+     </LinearRing>
+    </outerBoundaryIs>
+   </Polygon>
+</Placemark>
+
+
+<Placemark>
+ <name>PolygonY</name>
+<Style id="transBluePoly">
+      <LineStyle>
+        <width>1.5</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>7daa0000</color>
+      </PolyStyle>
+</Style>
+   <Polygon>
+    <outerBoundaryIs>
+     <LinearRing>
+      <coordinates> -118.29,34.022 -118.29,34.021 -118.287,34.0186 -118.280,34.0214 -118.282,34.0213 -118.29,34.022 </coordinates>
+     </LinearRing>
+    </outerBoundaryIs>
+   </Polygon>
+</Placemark>
+
+</Document>
+</kml>

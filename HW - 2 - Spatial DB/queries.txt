@@ -1,0 +1,34 @@
+TABLE CREATION & INSERTION- for convex hull calculation -
+
+create table polygon_usc 
+(
+name varchar,
+location geometry
+);
+
+insert into polygon_usc values 
+('home', 'point (-118.283 34.029)'), 
+('office','point(-118.289 34.025)'), 
+('Jeff/Mclintok','point(-118.287 34.025)'), 
+('Mudd Hall MHP','point(-118.287 34.0186)'),
+('SAL comp center','point(-118.29 34.021)'), 
+('Jeff/Vermont','point(-118.29 34.022)'), 
+('USC Bookstore','point(-118.2858 34.0205)'), 
+('VKC','point(-118.2838 34.0208)'), 
+('Galen Center','point(-118.280 34.0214)'), 
+('Starbucks','point(-118.282 34.0213)'); 
+
+QUERY 1- CONVEX HULL:
+SELECT ST_AsText(ST_ConvexHull(ST_Collect(location))) AS Convex_Hull
+FROM polygon_usc;
+
+ANS:
+POLYGON((-118.287 34.0186,-118.29 34.021,-118.29 34.022,-118.289 34.025,-118.283 34.029,-118.28 34.0214,-118.287 34.0186))
+
+QUERY 2- OVERLAPPING POLYGONS :
+
+SELECT ST_Overlaps(A,B) AS result
+FROM (SELECT ST_GeomFromText('POLYGON((-118.283 34.029, -118.289 34.025, -118.287 34.025, -118.2858 34.0205, -118.2838 34.0208, -118.283 34.029 ))') AS A,
+             ST_GeomFromText('POLYGON((-118.29 34.022, -118.29 34.021, -118.287 34.0186, -118.280 34.0214, -118.282 34.0213, -118.29 34.022 ))') AS B) AS xyz;
+
+ANS: TRUE (Boolean)

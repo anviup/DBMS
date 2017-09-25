@@ -1,0 +1,117 @@
+1) Creating the graph and traversal :
+graph = TinkerGraph.open()
+==>tinkergraph[vertices:0 edges:0]   // no vertices or edges have been added to the graph g
+v1 = graph.addVertex(id,1,label,"course","name","CS101")
+==>v[1]
+v2 = graph.addVertex(id,2,label,"course","name","CS201")
+==>v[2]
+v3 = graph.addVertex(id,3,label,"course","name","CS220")
+==>v[3]  
+v4 = graph.addVertex(id,4,label,"course","name","CS334")
+==>v[4]  
+v5 = graph.addVertex(id,5,label,"course","name","CS420")
+==>v[5]
+v6 = graph.addVertex(id,6,label,"course","name","CS681")
+==>v[6]
+v7 = graph.addVertex(id,7,label,"course","name","CS400")
+==>v[7]
+v8 = graph.addVertex(id,8,label,"course","name","CS526")
+==>v[8]
+
+Using graph = TinkerGraph.open() we create a graph type variable in which we can further add vertices/edges and we declared it open- ready to use!!
+vN (N - can be an number/name for the vertex - just a variable) = graph.addVertex(id,N,label,"xyz","name","abc") - Here, we are addng vertices to the graph structure where each vertex has a specific (unique) ID from which it can be identified and later used in queries or anywhere else. 
+There is a label which defines what "type" of node it is. Graphs are used to represent variety of situations and a vertext represent entities-say in a university DB - there can be class, students, tutors, syllabus, classrooms etc - all can be described by their specific "label" types. "name" gives a specific name to this course - say CS585 for Database systems. 
+ 
+//pre-requisites :
+
+v2.addEdge("pre", v1, id, 1)   //course described by ID 1 is a prerequisite for course described by ID 2. (Edge direction : 2-->1)
+==>e[1][2-pre->1]
+v3.addEdge("pre", v2, id, 2)
+==>e[2][3-pre->2]
+v4.addEdge("pre", v2, id, 3)
+==>e[3][4-pre->2]
+v5.addEdge("pre", v3, id, 4)
+==>e[4][5-pre->3]
+v6.addEdge("pre", v4, id, 5)
+==>e[5][6-pre->4]
+v7.addEdge("pre", v4, id, 6)  //this shows course 4 is a prereq. for 6 and 7 both and hence 6-->4, 7-->4 both exist in the graph. 
+==>e[6][7-pre->4]
+v8.addEdge("pre", v7, id, 7)
+==>e[7][8-pre->7]
+
+Here, we are adding edges between nodes. 
+vN = addEdge("edge-name/type", vN',id,N'') - Here there is an edge from node N to node N' having a specific type- here we had to add prerequisites for courses so the type is "pre" - this is user defined and can be given any name. Also, there is an ID to uniquely identify this edge. 
+
+//co-requisites :
+
+v8.addEdge("coreq", v7, id, 8)
+==>e[8][8-coreq->7]
+v5.addEdge("coreq", v3, id, 9)
+==>e[9][5-coreq->3]
+
+Here, the edge type is "coreq" to describe that these are co-requisites (as well as prerequisites). (Edge direction: 8-->7, 5-->3)
+
+g = graph.traversal(standard())
+==>graphtraversalsource[tinkergraph[vertices:8 edges:9], standard]
+
+The above command specifies graph traversal - writing only "g" on the command-line will give you details about the graph (held in variable "graph"). 
+NOTE: The variable g is the TraversalSource which is created with graph.traversal() [the object used to create new traversals].
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+2)Query to output double-connected nodes i.e. corequisites : 
+
+g.V().as('a').out('coreq').as('b').select('a','b')
+
+OUTPUT : 
+[a:v[5],b:v[3]]
+[a:v[8],b:v[7]]
+
+EXPLAINATION : g.V() is used to iterate over all the vertices of the graph and is MOSTLY used in association with some other function in tinkerpop (like 'has'). 
+Here, while iterating over all the vertices of the graph (g.V()); we choose(as()) nodes having an OUTGOING edge of type "coreq" as 'a' and INCOMING "coreq" edge as 'b' and extract them (using select('a','b')). In simpler words - select OUT egdes of type "coreq" coming from 'a' going into 'b'. 
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+3) Finding the ancestors for a given node i.e all prerequisites : 
+
+g.V(8).repeat(out('pre')).until(outE().count().is(0)).path().by('name')  //shows all ancestors of v(8)= CS526
+
+OUTPUT: ==> [CS526,CS400,CS334,CS201,CS101]
+
+g.V(5).repeat(out('pre')).until(outE().count().is(0)).path().by('name')  //shows all ancestors of v(5)= CS420
+
+OUTPUT: ==> [CS420,CS220,CS201,CS101]
+
+for V(1)= no answer shown //no path from root to root - no ancestors (i.e no prerequisites, also means no outgoing edges!!)
+
+EXPLAINATION :  From a given vertex (here vertex with id = 8,5) repeat traversing outward edges (having label "pre" from that particular node) until the count of outgoing edges at any given node (ancestor of the starting node) is ZERO (ie. out().count().is(0)). 
+Show the obtained path from vertex to all its ancestors using path() function in the end. 
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+4) Finding the max depth of the tree from a given vertex : 
+
+g.V(1).repeat(__.in('pre')).until(inE().count().is(0)).path().tail(1).unfold().count() //max depth from root node 
+OUTPUT : ==>5
+g.V(2).repeat(__.in('pre')).until(inE().count().is(0)).path().tail(1).unfold().count() //max depth from node 2 i.e. CS201 
+OUTPUT : ==>4
+(note that it has 2 branches but the query chooses the longest branch which has the max depth!!)
+g.V(4).repeat(__.in('pre')).until(inE().count().is(0)).path().tail(1).unfold().count() //max depth from node 4 i.e. CS334 
+OUTPUT : ==>3
+(note that it has 2 branches but the query chooses the longest branch which has the max depth!!)
+
+EXPLAINATION : In the query we count the incoming vertices (having label "pre"- indicating prerequsite) to a given vertex from the deepest level. We use incoming edges as the parameter and not outging edges as we have to find levels below a given vertex. The query [g.V(n).repeat(__.in('pre')).until(inE().count().is(0)).path()] fetches all "incoming" paths leading uptil vertex 'n'. Note that we can have multiple paths here but we need to pick the longest path which will gives us the deepest level. tail(1) (or only tail()) is used to find and select the longest such path. This path is "folded" together as a single output row. Therefore, unfold() is used so that we get individual vertices and then using count() we can get the total no. of levels.tail()/tail(1) function is used to select multiple output rows from the end of the list. Eg: use tail(2) to select the last and last but second output rows BOTH and so on.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q1 in a TWO steps (BONUS): 
+
+g = TinkerGraph.open().traversal()  //to set up 'g' as the graph variable, assign it for traversal and open it i.e make it ready to add vertices & edges!!
+
+g.addV().property(id, 1).as("CS101").addV().property(id, 2).as("CS201").addV().property(id, 3).as("CS220").addV().property(id, 4).as("CS334").
+  addV().property(id, 5).as("CS420").addV().property(id, 6).as("CS681").addV().property(id, 7).as("CS400").addV().property(id, 8).as("CS526").
+  addE("pre").from("CS201").to("CS101").addE("pre").from("CS220").to("CS201").addE("pre").from("CS334").to("CS201").
+  addE("pre").from("CS420").to("CS220").addE("coreq").from("CS420").to("CS220").addE("pre").from("CS681").to("CS334").
+  addE("pre").from("CS400").to("CS334").addE("pre").from("CS526").to("CS400").addE("coreq").from("CS526").to("CS400").iterate()
+
+//property is assigning unique IDs to each vertex, addV()and addE("label") for adding vertices and edges respectively. 
+
+Using the above graph initialization and traversal, query 1 (Q2) & query 3 (Q4) remain same BUT query 2 (Q3) needs to be modified a little as follows: 
+g.V(5).repeat(out('pre')).until(outE().count().is(0)).path() - remove by('name') as we have not included the name property in this graph. 
+The output will display all the ancestors of vertex 5 (CS420) : v3 (CS220), v2 (CS201) and v1 (CS101).
